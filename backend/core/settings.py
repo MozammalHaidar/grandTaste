@@ -1,5 +1,6 @@
 from pathlib import Path
-from decouple import config
+import dj_database_url
+from decouple import config as env
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -132,29 +133,28 @@ SSLCOMMERZ_IS_SANDBOX = config('SSLCOMMERZ_IS_SANDBOX', default=True, cast=bool)
 ADMIN_SITE_HEADER = "GrandTaste Admin"
 ADMIN_SITE_TITLE = "GrandTaste"
 
-import os
-import dj_database_url
-from decouple import config
 
-# Production settings
-PRODUCTION = config('PRODUCTION', default=False, cast=bool)
+# ─── Production Settings ─────────────────────────────────────
+PRODUCTION = env('PRODUCTION', default=False, cast=bool)
 
 if PRODUCTION:
     DEBUG = False
     ALLOWED_HOSTS = ['*']
 
-    # Database from Railway
+    # Database
     DATABASES = {
         'default': dj_database_url.parse(
-            config('DATABASE_URL'),
+            env('DATABASE_URL'),
             conn_max_age=600,
+            ssl_require=True,
         )
     }
 
-    # Whitenoise for static files
+    # Static files
     STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
-    # CORS for production
+    # CORS
     CORS_ALLOWED_ORIGINS = [
-        config('FRONTEND_URL', default='http://localhost:5173'),
+        env('FRONTEND_URL', default='http://localhost:5173'),
     ]
+    CORS_ALLOW_ALL_ORIGINS = True
