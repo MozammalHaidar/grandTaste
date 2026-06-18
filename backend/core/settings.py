@@ -29,6 +29,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -130,3 +131,30 @@ SSLCOMMERZ_IS_SANDBOX = config('SSLCOMMERZ_IS_SANDBOX', default=True, cast=bool)
 # Admin branding
 ADMIN_SITE_HEADER = "GrandTaste Admin"
 ADMIN_SITE_TITLE = "GrandTaste"
+
+import os
+import dj_database_url
+from decouple import config
+
+# Production settings
+PRODUCTION = config('PRODUCTION', default=False, cast=bool)
+
+if PRODUCTION:
+    DEBUG = False
+    ALLOWED_HOSTS = ['*']
+
+    # Database from Railway
+    DATABASES = {
+        'default': dj_database_url.parse(
+            config('DATABASE_URL'),
+            conn_max_age=600,
+        )
+    }
+
+    # Whitenoise for static files
+    STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
+    # CORS for production
+    CORS_ALLOWED_ORIGINS = [
+        config('FRONTEND_URL', default='http://localhost:5173'),
+    ]
