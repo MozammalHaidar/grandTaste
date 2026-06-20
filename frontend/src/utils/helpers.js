@@ -3,7 +3,8 @@ import { FOOD_EMOJIS, API_BASE, FREE_DELIVERY_THRESHOLD, DELIVERY_CHARGE } from 
 export const getImageUrl = (imagePath) => {
   if (!imagePath) return null
   if (imagePath.startsWith('http')) return imagePath
-  return `${API_BASE}${imagePath}`
+  const base = import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://127.0.0.1:8000'
+  return `${base}${imagePath}`
 }
 
 export const getFoodEmoji = (categoryName) => {
