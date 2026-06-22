@@ -120,6 +120,9 @@ CLOUDINARY_STORAGE = {
 
 MEDIA_URL = '/media/'
 
+# Add this back for compatibility with django-cloudinary-storage's collectstatic override
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
 STORAGES = {
     "default": {
         "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
