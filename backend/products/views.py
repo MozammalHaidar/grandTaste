@@ -13,6 +13,9 @@ from .filters import ProductFilter
 from rest_framework.permissions import IsAdminUser
 from rest_framework.parsers import MultiPartParser, FormParser
 
+from rest_framework import status
+from rest_framework.response import Response
+import traceback
 
 class CategoryListView(generics.ListAPIView):
     queryset = Category.objects.filter(is_active=True)
@@ -87,11 +90,29 @@ class AdminProductUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
 #     permission_classes = (IsAdminUser,)
 #     serializer_class = CategorySerializer
 
+# class AdminCategoryCreateView(generics.ListCreateAPIView):
+#     queryset = Category.objects.all()
+#     permission_classes = (IsAdminUser,)
+#     serializer_class = CategorySerializer
+#     parser_classes = (MultiPartParser, FormParser)
+
+
+
 class AdminCategoryCreateView(generics.ListCreateAPIView):
     queryset = Category.objects.all()
     permission_classes = (IsAdminUser,)
     serializer_class = CategorySerializer
     parser_classes = (MultiPartParser, FormParser)
+
+    def create(self, request, *args, **kwargs):
+        try:
+            return super().create(request, *args, **kwargs)
+        except Exception as e:
+            traceback.print_exc()   # This prints the full error to Render logs
+            return Response(
+                {"error": str(e)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
 
 
 # class AdminCategoryUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
