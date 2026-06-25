@@ -63,8 +63,6 @@ class ReviewListView(generics.ListAPIView):
         return Review.objects.filter(product__slug=self.kwargs['slug'])
 
 
-
-
 class AdminProductListCreateView(generics.ListCreateAPIView):
     queryset = Product.objects.all().select_related('category')
     permission_classes = (IsAdminUser,)
@@ -84,13 +82,25 @@ class AdminProductUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = ProductDetailSerializer
 
 
+# class AdminCategoryCreateView(generics.ListCreateAPIView):
+#     queryset = Category.objects.all()
+#     permission_classes = (IsAdminUser,)
+#     serializer_class = CategorySerializer
+
 class AdminCategoryCreateView(generics.ListCreateAPIView):
     queryset = Category.objects.all()
     permission_classes = (IsAdminUser,)
     serializer_class = CategorySerializer
+    parser_classes = (MultiPartParser, FormParser)
 
+
+# class AdminCategoryUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
+#     queryset = Category.objects.all()
+#     permission_classes = (IsAdminUser,)
+#     serializer_class = CategorySerializer
 
 class AdminCategoryUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Category.objects.all()
     permission_classes = (IsAdminUser,)
     serializer_class = CategorySerializer
+    parser_classes = (MultiPartParser, FormParser)
