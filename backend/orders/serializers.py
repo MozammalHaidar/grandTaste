@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from .models import Cart, CartItem, Wishlist, Order, OrderItem, Coupon
 from products.serializers import ProductListSerializer
+from django.db import models
 
 
 class CartItemSerializer(serializers.ModelSerializer):
@@ -10,7 +11,7 @@ class CartItemSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = CartItem
-        fields = ('id', 'product', 'product_id', 'quantity', 'subtotal')
+        fields = "__all__"
 
 
 class CartSerializer(serializers.ModelSerializer):
@@ -20,7 +21,7 @@ class CartSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Cart
-        fields = ('id', 'items', 'total', 'total_items')
+        fields = "__all__"
 
 
 class WishlistSerializer(serializers.ModelSerializer):
@@ -28,13 +29,12 @@ class WishlistSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Wishlist
-        fields = ('id', 'products')
-
+        fields = "__all__"
 
 class CouponSerializer(serializers.ModelSerializer):
     class Meta:
         model = Coupon
-        fields = ('id', 'code', 'discount_percent', 'min_order_amount')
+        fields = "__all__"
 
 
 class OrderItemSerializer(serializers.ModelSerializer):
@@ -43,7 +43,7 @@ class OrderItemSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = OrderItem
-        fields = ('id', 'product', 'quantity', 'price', 'subtotal')
+        fields = "__all__"
 
 
 class OrderSerializer(serializers.ModelSerializer):
@@ -52,12 +52,7 @@ class OrderSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Order
-        fields = (
-            'id', 'status', 'payment_method', 'payment_status',
-            'full_name', 'phone', 'address', 'city',
-            'subtotal', 'discount_amount', 'delivery_charge', 'total',
-            'note', 'items', 'coupon_code', 'created_at',
-        )
+        fields = "__all__"
         read_only_fields = (
             'id', 'status', 'payment_status', 'subtotal',
             'discount_amount', 'delivery_charge', 'total', 'created_at',
@@ -128,12 +123,7 @@ class OrderSerializer(serializers.ModelSerializer):
 class CouponSerializer(serializers.ModelSerializer):
     class Meta:
         model = Coupon
-        fields = (
-            'id', 'code', 'discount_percent', 'min_order_amount',
-            'max_uses', 'used_count', 'is_active', 'expires_at', 'created_at'
-        )
+        fields = "__all__"
         read_only_fields = ('id', 'used_count', 'created_at')
 
 
-# Fix missing import
-from django.db import models

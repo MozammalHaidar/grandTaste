@@ -85,17 +85,6 @@ class AdminProductUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = ProductDetailSerializer
 
 
-# class AdminCategoryCreateView(generics.ListCreateAPIView):
-#     queryset = Category.objects.all()
-#     permission_classes = (IsAdminUser,)
-#     serializer_class = CategorySerializer
-
-# class AdminCategoryCreateView(generics.ListCreateAPIView):
-#     queryset = Category.objects.all()
-#     permission_classes = (IsAdminUser,)
-#     serializer_class = CategorySerializer
-#     parser_classes = (MultiPartParser, FormParser)
-
 
 
 class AdminCategoryCreateView(generics.ListCreateAPIView):
@@ -104,21 +93,6 @@ class AdminCategoryCreateView(generics.ListCreateAPIView):
     serializer_class = CategorySerializer
     parser_classes = (MultiPartParser, FormParser)
 
-    def create(self, request, *args, **kwargs):
-        try:
-            return super().create(request, *args, **kwargs)
-        except Exception as e:
-            traceback.print_exc()   # This prints the full error to Render logs
-            return Response(
-                {"error": str(e)},
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR
-            )
-
-
-# class AdminCategoryUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
-#     queryset = Category.objects.all()
-#     permission_classes = (IsAdminUser,)
-#     serializer_class = CategorySerializer
 
 class AdminCategoryUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Category.objects.all()
