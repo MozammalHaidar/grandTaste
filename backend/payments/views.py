@@ -4,9 +4,26 @@ from rest_framework import permissions, status
 from django.conf import settings
 from django.shortcuts import redirect
 from orders.models import Order
-from sslcommerz_lib import SSLCOMMERZ as SSLCZ
-SSLCOMMERZ = SSLCZ
+from sslcommerz_lib import SSLCOMMERZ
 import uuid
+
+
+def get_frontend_url():
+    """Returns the configured frontend URL, falling back to localhost for local dev."""
+    return getattr(settings, 'FRONTEND_URL', None) or 'http://localhost:5173'
+
+
+def get_backend_url():
+    """Returns the configured backend URL, falling back to localhost for local dev."""
+    return getattr(settings, 'BACKEND_URL', None) or 'http://127.0.0.1:8000'
+
+
+def extract_order_id(tran_id):
+    """Extracts the order ID from a transaction ID like 'FF-42-A1B2C3D4'."""
+    try:
+        return tran_id.split('-')[1]
+    except (IndexError, AttributeError):
+        return None
 
 
 class InitiatePaymentView(APIView):
@@ -30,15 +47,16 @@ class InitiatePaymentView(APIView):
             'issandbox': settings.SSLCOMMERZ_IS_SANDBOX,
         }
 
+        backend_url = get_backend_url()
         sslcz = SSLCOMMERZ(settings_data)
 
         post_body = {
             'total_amount': float(order.total),
             'currency': 'BDT',
             'tran_id': transaction_id,
-            'success_url': 'http://localhost:8000/api/payments/success/',
-            'fail_url': 'http://localhost:8000/api/payments/fail/',
-            'cancel_url': 'http://localhost:8000/api/payments/cancel/',
+            'success_url': f'{backend_url}/api/payments/success/',
+            'fail_url': f'{backend_url}/api/payments/fail/',
+            'cancel_url': f'{backend_url}/api/payments/cancel/',
             'emi_option': 0,
             'cus_name': order.full_name,
             'cus_email': request.user.email,
@@ -74,49 +92,45 @@ class PaymentSuccessView(APIView):
     permission_classes = (permissions.AllowAny,)
 
     def post(self, request):
-        tran_id = request.data.get('tran_id', '')
+        frontend_url = get_frontend_url()
         status_value = request.data.get('status', '')
+        order_id = extract_order_id(request.data.get('tran_id', ''))
 
-        if status_value == 'VALID' and tran_id:
+        if status_value == 'VALID' and order_id:
             try:
-                order_id = tran_id.split('-')[1]
                 order = Order.objects.get(id=order_id)
                 order.payment_status = True
                 order.status = 'confirmed'
                 order.save()
-                return redirect(f'http://localhost:5173/orders/{order.id}?payment=success')
-            except (Order.DoesNotExist, IndexError):
+                return redirect(f'{frontend_url}/orders/{order.id}?payment=success')
+            except Order.DoesNotExist:
                 pass
 
-        return redirect('http://localhost:5173/payment-failed')
+        return redirect(f'{frontend_url}/payment-failed')
 
 
 class PaymentFailView(APIView):
     permission_classes = (permissions.AllowAny,)
 
     def post(self, request):
-        tran_id = request.data.get('tran_id', '')
-        if tran_id:
-            try:
-                order_id = tran_id.split('-')[1]
-                return redirect(f'http://localhost:5173/orders/{order_id}?payment=failed')
-            except (IndexError, Exception):
-                pass
-        return redirect('http://localhost:5173/payment-failed')
+        frontend_url = get_frontend_url()
+        order_id = extract_order_id(request.data.get('tran_id', ''))
+
+        if order_id:
+            return redirect(f'{frontend_url}/orders/{order_id}?payment=failed')
+        return redirect(f'{frontend_url}/payment-failed')
 
 
 class PaymentCancelView(APIView):
     permission_classes = (permissions.AllowAny,)
 
     def post(self, request):
-        tran_id = request.data.get('tran_id', '')
-        if tran_id:
-            try:
-                order_id = tran_id.split('-')[1]
-                return redirect(f'http://localhost:5173/orders/{order_id}?payment=cancelled')
-            except (IndexError, Exception):
-                pass
-        return redirect('http://localhost:5173/payment-failed')
+        frontend_url = get_frontend_url()
+        order_id = extract_order_id(request.data.get('tran_id', ''))
+
+        if order_id:
+            return redirect(f'{frontend_url}/orders/{order_id}?payment=cancelled')
+        return redirect(f'{frontend_url}/payment-failed')
 
 
 class PaymentStatusView(APIView):
@@ -132,4 +146,7 @@ class PaymentStatusView(APIView):
                 'total': str(order.total),
             })
         except Order.DoesNotExist:
-            return Response({'error': 'Order not found'}, status=status.HTTP_404_NOT_FOUND)
+            return Response(
+                {'error': 'Order not found'},
+                status=status.HTTP_404_NOT_FOUND
+            )

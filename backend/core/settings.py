@@ -123,6 +123,7 @@ CLOUDINARY_STORAGE = {
 MEDIA_URL = '/media/'
 
 # Required by django-cloudinary-storage
+
 STATICFILES_STORAGE = "whitenoise.storage.CompressedStaticFilesStorage"
 
 STORAGES = {
