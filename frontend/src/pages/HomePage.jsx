@@ -295,7 +295,7 @@ const HomePage = () => {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
               {loading
                 ? [...Array(4)].map((_, i) => <SkeletonCard key={i} />)
-                : featured.slice(0, 8).map((product) => (
+                : featured.slice(0, 12).map((product) => (
                     <ProductCard key={product.id} product={product} />
                   ))
               }
