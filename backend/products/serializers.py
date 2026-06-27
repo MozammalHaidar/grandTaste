@@ -8,7 +8,7 @@ class CategorySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Category
-        fields = "__all__"
+        fields = ('id', 'name', 'slug', 'image', 'description', 'is_active', 'product_count')
 
     def get_product_count(self, obj):
         return obj.products.filter(is_active=True).count()
@@ -19,7 +19,7 @@ class ReviewSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Review
-        fields = "__all__"
+        fields = ('id', 'user', 'rating', 'comment', 'created_at')
         read_only_fields = ('id', 'user', 'created_at')
 
     def create(self, validated_data):
@@ -35,10 +35,17 @@ class ProductListSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Product
-        fields = "__all__"
+        fields = (
+            'id', 'name', 'slug', 'category', 'category_name',
+            'price', 'discount_price', 'final_price',
+            'image', 'stock', 'is_featured',
+            'preparation_time', 'average_rating', 'review_count',
+        )
+
 
 class ProductDetailSerializer(serializers.ModelSerializer):
     category = CategorySerializer(read_only=True)
+    category_id = serializers.IntegerField(write_only=True, required=False)
     reviews = ReviewSerializer(many=True, read_only=True)
     average_rating = serializers.FloatField(read_only=True)
     review_count = serializers.IntegerField(read_only=True)
@@ -46,4 +53,10 @@ class ProductDetailSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Product
-        fields = "__all__"
+        fields = (
+            'id', 'name', 'slug', 'description', 'category', 'category_id',
+            'price', 'discount_price', 'final_price',
+            'image', 'stock', 'is_active', 'is_featured',
+            'preparation_time', 'average_rating', 'review_count', 'reviews',
+            'created_at',
+        )

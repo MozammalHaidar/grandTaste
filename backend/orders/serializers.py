@@ -11,7 +11,7 @@ class CartItemSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = CartItem
-        fields = "__all__"
+        fields = ('id', 'product', 'product_id', 'quantity', 'subtotal')
 
 
 class CartSerializer(serializers.ModelSerializer):
@@ -21,7 +21,7 @@ class CartSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Cart
-        fields = "__all__"
+        fields = ('id', 'items', 'total', 'total_items')
 
 
 class WishlistSerializer(serializers.ModelSerializer):
@@ -29,12 +29,17 @@ class WishlistSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Wishlist
-        fields = "__all__"
+        fields = ('id', 'products')
+
 
 class CouponSerializer(serializers.ModelSerializer):
     class Meta:
         model = Coupon
-        fields = "__all__"
+        fields = (
+            'id', 'code', 'discount_percent', 'min_order_amount',
+            'max_uses', 'used_count', 'is_active', 'expires_at', 'created_at',
+        )
+        read_only_fields = ('id', 'used_count', 'created_at')
 
 
 class OrderItemSerializer(serializers.ModelSerializer):
@@ -43,7 +48,7 @@ class OrderItemSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = OrderItem
-        fields = "__all__"
+        fields = ('id', 'product', 'quantity', 'price', 'subtotal')
 
 
 class OrderSerializer(serializers.ModelSerializer):
@@ -52,7 +57,12 @@ class OrderSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Order
-        fields = "__all__"
+        fields = (
+            'id', 'status', 'payment_method', 'payment_status',
+            'full_name', 'phone', 'address', 'city',
+            'subtotal', 'discount_amount', 'delivery_charge', 'total',
+            'note', 'items', 'coupon_code', 'created_at',
+        )
         read_only_fields = (
             'id', 'status', 'payment_status', 'subtotal',
             'discount_amount', 'delivery_charge', 'total', 'created_at',
@@ -62,7 +72,6 @@ class OrderSerializer(serializers.ModelSerializer):
         coupon_code = validated_data.pop('coupon_code', None)
         user = self.context['request'].user
 
-        # Get cart
         try:
             cart = Cart.objects.get(user=user)
         except Cart.DoesNotExist:
@@ -71,7 +80,6 @@ class OrderSerializer(serializers.ModelSerializer):
         if not cart.items.exists():
             raise serializers.ValidationError('Your cart is empty')
 
-        # Calculate totals
         subtotal = cart.total
         discount_amount = 0
         coupon = None
@@ -93,7 +101,6 @@ class OrderSerializer(serializers.ModelSerializer):
         delivery_charge = 0 if subtotal >= 500 else 60
         total = subtotal - discount_amount + delivery_charge
 
-        # Create order
         order = Order.objects.create(
             user=user,
             coupon=coupon,
@@ -104,7 +111,6 @@ class OrderSerializer(serializers.ModelSerializer):
             **validated_data
         )
 
-        # Create order items + deduct stock
         for cart_item in cart.items.all():
             OrderItem.objects.create(
                 order=order,
@@ -115,15 +121,7 @@ class OrderSerializer(serializers.ModelSerializer):
             cart_item.product.stock -= cart_item.quantity
             cart_item.product.save()
 
-        # Clear cart
         cart.items.all().delete()
 
         return order
-    
-class CouponSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Coupon
-        fields = "__all__"
-        read_only_fields = ('id', 'used_count', 'created_at')
-
 
