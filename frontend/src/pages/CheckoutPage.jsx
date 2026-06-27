@@ -6,6 +6,7 @@ import Layout from '../components/Layout'
 import { fetchCart } from '../store/cartSlice'
 import api from '../api/axios'
 import { initiatePayment } from '../api/paymentApi'
+import { getImageUrl, getFoodEmoji } from '../utils/helpers'
 import SEO from '../components/SEO'
 
 
@@ -227,20 +228,28 @@ const CheckoutPage = () => {
               <div className="card p-6">
                 <h3 className="font-bold text-gray-800 text-lg mb-4">🛒 Order Items</h3>
                 <div className="space-y-3">
-                  {items.map((item) => (
-                    <div key={item.id} className="flex items-center justify-between py-2 border-b border-gray-100 last:border-0">
-                      <div className="flex items-center gap-3">
-                        <span className="w-8 h-8 bg-orange-100 rounded-lg flex items-center justify-center text-lg">
-                          🍽️
-                        </span>
-                        <div>
-                          <p className="font-medium text-gray-800 text-sm">{item.product.name}</p>
-                          <p className="text-xs text-gray-400">x{item.quantity}</p>
+                  {items.map((item) => {
+                    const imageUrl = getImageUrl(item.product.image)
+                    const emoji = getFoodEmoji(item.product.category_name)
+
+                    return (
+                      <div key={item.id} className="flex items-center justify-between py-2 border-b border-gray-100 last:border-0">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center flex-shrink-0 overflow-hidden">
+                            {imageUrl
+                              ? <img src={imageUrl} alt={item.product.name} className="w-full h-full object-cover rounded-lg" />
+                              : <span className="text-lg">{emoji}</span>
+                            }
+                          </div>
+                          <div>
+                            <p className="font-medium text-gray-800 text-sm">{item.product.name}</p>
+                            <p className="text-xs text-gray-400">x{item.quantity}</p>
+                          </div>
                         </div>
+                        <p className="font-semibold text-gray-800">৳{item.subtotal}</p>
                       </div>
-                      <p className="font-semibold text-gray-800">৳{item.subtotal}</p>
-                    </div>
-                  ))}
+                    )
+                  })}
                 </div>
               </div>
             </div>
