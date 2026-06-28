@@ -100,9 +100,6 @@ class AdminProductUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
     parser_classes = (MultiPartParser, FormParser)
     serializer_class = ProductDetailSerializer
 
-
-
-
 class AdminCategoryCreateView(generics.ListCreateAPIView):
     queryset = Category.objects.all()
     permission_classes = (IsAdminUser,)
