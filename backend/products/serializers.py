@@ -43,20 +43,52 @@ class ProductListSerializer(serializers.ModelSerializer):
         )
 
 
+# class ProductDetailSerializer(serializers.ModelSerializer):
+#     category = CategorySerializer(read_only=True)
+#     category_id = serializers.IntegerField(write_only=True, required=False)
+#     reviews = ReviewSerializer(many=True, read_only=True)
+#     average_rating = serializers.FloatField(read_only=True)
+#     review_count = serializers.IntegerField(read_only=True)
+#     final_price = serializers.DecimalField(max_digits=10, decimal_places=2, read_only=True)
+
+#     class Meta:
+#         model = Product
+#         fields = (
+#             'id', 'name', 'slug', 'description', 'category', 'category_id',
+#             'price', 'discount_price', 'final_price',
+#             'image', 'stock', 'is_active', 'is_featured',
+#             'preparation_time', 'average_rating', 'review_count', 'reviews',
+#             'created_at',
+#         )
+
 class ProductDetailSerializer(serializers.ModelSerializer):
     category = CategorySerializer(read_only=True)
-    category_id = serializers.IntegerField(write_only=True, required=False)
-    reviews = ReviewSerializer(many=True, read_only=True)
-    average_rating = serializers.FloatField(read_only=True)
-    review_count = serializers.IntegerField(read_only=True)
-    final_price = serializers.DecimalField(max_digits=10, decimal_places=2, read_only=True)
+
+    category_id = serializers.PrimaryKeyRelatedField(
+        queryset=Category.objects.all(),
+        source="category",
+        write_only=True
+    )
 
     class Meta:
         model = Product
         fields = (
-            'id', 'name', 'slug', 'description', 'category', 'category_id',
-            'price', 'discount_price', 'final_price',
-            'image', 'stock', 'is_active', 'is_featured',
-            'preparation_time', 'average_rating', 'review_count', 'reviews',
+            'id',
+            'name',
+            'slug',
+            'description',
+            'category',
+            'category_id',
+            'price',
+            'discount_price',
+            'final_price',
+            'image',
+            'stock',
+            'is_active',
+            'is_featured',
+            'preparation_time',
+            'average_rating',
+            'review_count',
+            'reviews',
             'created_at',
         )
