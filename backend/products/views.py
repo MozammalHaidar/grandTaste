@@ -66,17 +66,33 @@ class ReviewListView(generics.ListAPIView):
         return Review.objects.filter(product__slug=self.kwargs['slug'])
 
 
+# class AdminProductListCreateView(generics.ListCreateAPIView):
+#     queryset = Product.objects.all().select_related('category')
+#     permission_classes = (IsAdminUser,)
+#     parser_classes = (MultiPartParser, FormParser)
+
+#     def get_serializer_class(self):
+#         return ProductDetailSerializer
+
+#     def perform_create(self, serializer):
+#         serializer.save()
+
 class AdminProductListCreateView(generics.ListCreateAPIView):
     queryset = Product.objects.all().select_related('category')
     permission_classes = (IsAdminUser,)
     parser_classes = (MultiPartParser, FormParser)
+    serializer_class = ProductDetailSerializer
 
-    def get_serializer_class(self):
-        return ProductDetailSerializer
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
 
-    def perform_create(self, serializer):
-        serializer.save()
+        if not serializer.is_valid():
+            print("REQUEST DATA:", request.data)
+            print("ERRORS:", serializer.errors)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+        self.perform_create(serializer)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 class AdminProductUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Product.objects.all()
