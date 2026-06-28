@@ -12,22 +12,18 @@ const AdminProducts = () => {
   const [editing, setEditing] = useState(null)
 
   const [formData, setFormData] = useState({
-  name: '',
-  slug: '',
-  description: '',
-  price: '',
-  discount_price: '',
-  stock: '',
-  preparation_time: 20,
-  category_id: '',
-  is_active: true,
-  is_featured: false,
-})
-  // const [formData, setFormData] = useState({
-  //   name: '', slug: '', description: '', price: '',
-  //   discount_price: '', stock: '', preparation_time: 20,
-  //   category: '', is_active: true, is_featured: false,
-  // })
+    name: '',
+    slug: '',
+    description: '',
+    price: '',
+    discount_price: '',
+    stock: '',
+    preparation_time: 20,
+    category_id: '',
+    is_active: true,
+    is_featured: false,
+  })
+  
   const [imageFile, setImageFile] = useState(null)
   const [saving, setSaving] = useState(false)
 
@@ -52,53 +48,36 @@ const AdminProducts = () => {
     setEditing(null)
 
     setFormData({
-  name: '',
-  slug: '',
-  description: '',
-  price: '',
-  discount_price: '',
-  stock: '',
-  preparation_time: 20,
-  category_id: '',
-  is_active: true,
-  is_featured: false,
-})
-    // setFormData({
-    //   name: '', slug: '', description: '', price: '',
-    //   discount_price: '', stock: '', preparation_time: 20,
-    //   category: '', is_active: true, is_featured: false,
-    // })
+      name: '',
+      slug: '',
+      description: '',
+      price: '',
+      discount_price: '',
+      stock: '',
+      preparation_time: 20,
+      category_id: '',
+      is_active: true,
+      is_featured: false,
+    })
     setImageFile(null)
     setShowModal(true)
   }
 
   const openEdit = (product) => {
     setEditing(product)
-    // setFormData({
-    //   name: product.name,
-    //   slug: product.slug,
-    //   description: product.description || '',
-    //   price: product.price,
-    //   discount_price: product.discount_price || '',
-    //   stock: product.stock,
-    //   preparation_time: product.preparation_time,
-    //   category: product.category?.id || '',
-    //   is_active: product.is_active,
-    //   is_featured: product.is_featured,
-    // })
 
-  setFormData({
-    name: product.name,
-    slug: product.slug,
-    description: product.description || '',
-    price: product.price,
-    discount_price: product.discount_price || '',
-    stock: product.stock,
-    preparation_time: product.preparation_time,
-    category_id: product.category?.id || '',
-    is_active: product.is_active,
-    is_featured: product.is_featured,
-})
+    setFormData({
+      name: product.name,
+      slug: product.slug,
+      description: product.description || '',
+      price: product.price,
+      discount_price: product.discount_price || '',
+      stock: product.stock,
+      preparation_time: product.preparation_time,
+      category_id: product.category?.id || '',
+      is_active: product.is_active,
+      is_featured: product.is_featured,
+  })
     setImageFile(null)
     setShowModal(true)
   }
@@ -113,37 +92,6 @@ const AdminProducts = () => {
     }))
   }
 
-  // const handleSubmit = async (e) => {
-  //   e.preventDefault()
-  //   setSaving(true)
-  //   try {
-  //     const fd = new FormData()
-  //     Object.entries(formData).forEach(([k, v]) => {
-  //       if (v !== '' && v !== null) fd.append(k, v)
-  //     })
-  //     if (imageFile) fd.append('image', imageFile)
-
-  //     if (editing) {
-  //       await api.patch(`/products/admin/products/${editing.id}/`, fd, {
-  //         headers: { 'Content-Type': 'multipart/form-data' }
-  //       })
-  //       toast.success('Product updated!')
-  //     } else {
-  //       await api.post('/products/admin/products/', fd, {
-  //         headers: { 'Content-Type': 'multipart/form-data' }
-  //       })
-  //       toast.success('Product created!')
-  //     }
-  //     setShowModal(false)
-  //     loadData()
-  //   } catch (err) {
-  //     const errors = err.response?.data
-  //     if (errors) Object.values(errors).forEach((msg) => toast.error(Array.isArray(msg) ? msg[0] : msg))
-  //     else toast.error('Failed to save product')
-  //   } finally {
-  //     setSaving(false)
-  //   }
-  // }
 
   const handleSubmit = async (e) => {
   e.preventDefault()
@@ -311,10 +259,7 @@ const AdminProducts = () => {
                         </option>
                       ))}
                     </select>
-                  {/* <select name="category" required value={formData.category} onChange={handleChange} className="input-field">
-                    <option value="">Select category</option>
-                    {categories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
-                  </select> */}
+                  
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Price (৳) *</label>
