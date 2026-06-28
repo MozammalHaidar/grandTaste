@@ -73,6 +73,7 @@ const Navbar = () => {
   };
 
   const handleSuggestionClick = (slug) => {
+    console.log('Clicked suggestion, slug:', slug);
     setSearchOpen(false);
     setSuggestions([]);
     setSearchQuery("");
@@ -147,7 +148,7 @@ const Navbar = () => {
                     </div>
                     {suggestions.map((product) => (
                       <button key={product.id}
-                        onClick={() => handleSuggestionClick(product.slug)}
+                        onMouseDown={(e) => { e.preventDefault(); handleSuggestionClick(product.slug); }}
                         className="w-full flex items-center gap-3 px-4 py-3 hover:bg-primary-50 transition-colors text-left border-b border-gray-50 last:border-0">
                         <div className="w-10 h-10 bg-orange-50 rounded-xl flex items-center justify-center flex-shrink-0 overflow-hidden">
                           {getImageUrl(product.image)
@@ -314,7 +315,7 @@ const Navbar = () => {
               <div className="mt-2 bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
                 {suggestions.map((product) => (
                   <button key={product.id}
-                    onClick={() => handleSuggestionClick(product.slug)}
+                    onMouseDown={(e) => { e.preventDefault(); handleSuggestionClick(product.slug); }}
                     className="w-full flex items-center gap-3 px-4 py-3 hover:bg-primary-50 transition-colors text-left border-b border-gray-50 last:border-0">
                     <div className="w-9 h-9 bg-orange-50 rounded-xl flex items-center justify-center flex-shrink-0 overflow-hidden">
                       {getImageUrl(product.image)
