@@ -3,19 +3,16 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter, OrderingFilter
+from rest_framework.permissions import IsAdminUser
+from rest_framework.parsers import MultiPartParser, FormParser
 from .models import Category, Product, Review
 from .serializers import (
     CategorySerializer, ProductListSerializer,
     ProductDetailSerializer, ReviewSerializer
 )
 from .filters import ProductFilter
-
-from rest_framework.permissions import IsAdminUser
-from rest_framework.parsers import MultiPartParser, FormParser
-
-from rest_framework import status
-from rest_framework.response import Response
 import traceback
+
 
 class CategoryListView(generics.ListAPIView):
     queryset = Category.objects.filter(is_active=True)
@@ -66,17 +63,6 @@ class ReviewListView(generics.ListAPIView):
         return Review.objects.filter(product__slug=self.kwargs['slug'])
 
 
-# class AdminProductListCreateView(generics.ListCreateAPIView):
-#     queryset = Product.objects.all().select_related('category')
-#     permission_classes = (IsAdminUser,)
-#     parser_classes = (MultiPartParser, FormParser)
-
-#     def get_serializer_class(self):
-#         return ProductDetailSerializer
-
-#     def perform_create(self, serializer):
-#         serializer.save()
-
 class AdminProductListCreateView(generics.ListCreateAPIView):
     queryset = Product.objects.all().select_related('category')
     permission_classes = (IsAdminUser,)
@@ -84,21 +70,25 @@ class AdminProductListCreateView(generics.ListCreateAPIView):
     serializer_class = ProductDetailSerializer
 
     def create(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
+        try:
+            serializer = self.get_serializer(data=request.data)
+            if not serializer.is_valid():
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            self.perform_create(serializer)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        except Exception as e:
+            return Response(
+                {'error': str(e), 'traceback': traceback.format_exc()},
+                status=500
+            )
 
-        if not serializer.is_valid():
-            print("REQUEST DATA:", request.data)
-            print("ERRORS:", serializer.errors)
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-        self.perform_create(serializer)
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 class AdminProductUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Product.objects.all()
     permission_classes = (IsAdminUser,)
     parser_classes = (MultiPartParser, FormParser)
     serializer_class = ProductDetailSerializer
+
 
 class AdminCategoryCreateView(generics.ListCreateAPIView):
     queryset = Category.objects.all()
@@ -107,13 +97,17 @@ class AdminCategoryCreateView(generics.ListCreateAPIView):
     parser_classes = (MultiPartParser, FormParser)
 
     def create(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        if not serializer.is_valid():
-            print("CATEGORY REQUEST DATA:", request.data)
-            print("CATEGORY ERRORS:", serializer.errors)
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        self.perform_create(serializer)
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+        try:
+            serializer = self.get_serializer(data=request.data)
+            if not serializer.is_valid():
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            self.perform_create(serializer)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        except Exception as e:
+            return Response(
+                {'error': str(e), 'traceback': traceback.format_exc()},
+                status=500
+            )
 
 
 class AdminCategoryUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
